@@ -1,0 +1,418 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>تطوع من أجلي – منصة التطوع لخدمة الأسر المستفيدة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/scrollreveal"></script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27><rect width=%27100%27 height=%27100%27 rx=%2715%27 fill=%27%2323724a%27/><text x=%2750%25%27 y=%2758%25%27 font-size=%2755%27 text-anchor=%27middle%27 fill=%27white%27>م</text></svg>">
+    
+    <style>
+        :root {
+            --primary: #059669;
+            --primary-dark: #047857;
+            --secondary: #0e7490;
+            --light: #f0fdf4;
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 50%, #d1fae5 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+            border-color: var(--primary);
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+        }
+        
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent 0%, var(--primary) 50%, transparent 100%);
+        }
+    </style>
+</head>
+<body class="font-[Cairo] bg-slate-50 text-slate-800">
+    <!-- شريط التنقل المحسّن -->
+    <header class="bg-white shadow-sm sticky top-0 z-50 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-2 space-x-reverse">
+                <div class="w-10 h-10 rounded-lg bg-emerald-600 flex items-center justify-center">
+                    <span class="text-white font-bold text-lg">م</span>
+                </div>
+                <div class="font-extrabold text-2xl text-emerald-700">تطوع من أجلي</div>
+            </div>
+            <nav class="flex gap-3">
+                {% if request.user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}" class="px-4 py-2 rounded-lg btn-primary text-white flex items-center gap-2">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>لوحتي</span>
+                    </a>
+                    <a href="{% url 'logout' %}" class="px-4 py-2 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 transition-colors flex items-center gap-2">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>خروج</span>
+                    </a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="px-4 py-2 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 transition-colors flex items-center gap-2">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>دخول</span>
+                    </a>
+                    <a href="#join" class="px-4 py-2 rounded-lg btn-primary text-white flex items-center gap-2 pulse-animation">
+                        <i class="fas fa-user-plus"></i>
+                        <span>انضم إلينا</span>
+                    </a>
+                {% endif %}
+            </nav>
+        </div>
+    </header>
+
+    <!-- قسم البطل المحسّن -->
+    <section class="hero-gradient py-16 md:py-24 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-10 items-center">
+            <div class="animate-fade-in-right">
+                <h1 class="text-4xl md:text-5xl font-extrabold text-slate-800 leading-tight">
+                    منصة <span class="text-emerald-600">التطوع</span> لخدمة الأسر المستفيدة
+                </h1>
+                <p class="mt-4 text-lg text-slate-600 max-w-lg">
+                    نربط المحتاجين بالمتعطين بكل سهولة وأمان. نسعى لبناء مجتمع متكافل حيث يجد المحتاجون من يساعدهم، ويجد المتطوعون فرصاً حقيقية للتأثير.
+                </p>
+                
+                <div class="mt-8 space-y-4">
+                    {% for title,desc in goals %}
+                    <div class="p-4 rounded-xl bg-white/70 backdrop-blur-sm border border-white card-hover">
+                        <div class="font-bold text-emerald-700 flex items-center gap-2">
+                            <i class="fas fa-check-circle text-emerald-500"></i>
+                            {{ title }}
+                        </div>
+                        <div class="text-sm text-slate-600 mt-1">{{ desc }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="mt-8 flex flex-wrap gap-4">
+                    <a href="{% url 'dashboard' %}" class="px-6 py-3 rounded-xl btn-primary text-white font-semibold flex items-center gap-2">
+                        <i class="fas fa-hands-helping"></i>
+                        <span>أنا متطوع/جهة</span>
+                    </a>
+                    <a href="#how-it-works" class="px-6 py-3 rounded-xl bg-white border border-slate-200 text-slate-700 font-semibold hover:bg-slate-50 transition-colors flex items-center gap-2">
+                        <i class="fas fa-play-circle"></i>
+                        <span>كيف تعمل المنصة</span>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="relative">
+                <div class="bg-white/50 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white">
+                    <h3 class="text-xl font-bold text-slate-800 mb-4 text-center">إحصائيات المنصة</h3>
+                    <div id="stats" class="grid grid-cols-2 gap-4">
+                        <div class="p-5 rounded-xl stat-card card-hover text-center">
+                            <div class="text-3xl font-extrabold text-emerald-600">{{ stats.beneficiaries }}</div>
+                            <div class="text-sm text-slate-500 mt-1">المستفيدون</div>
+                            <div class="mt-2 h-1 w-12 bg-emerald-100 rounded-full mx-auto"></div>
+                        </div>
+                        <div class="p-5 rounded-xl stat-card card-hover text-center">
+                            <div class="text-3xl font-extrabold text-blue-600">{{ stats.volunteers }}</div>
+                            <div class="text-sm text-slate-500 mt-1">المتطوعون</div>
+                            <div class="mt-2 h-1 w-12 bg-blue-100 rounded-full mx-auto"></div>
+                        </div>
+                        <div class="p-5 rounded-xl stat-card card-hover text-center">
+                            <div class="text-3xl font-extrabold text-amber-600">{{ stats.orgs }}</div>
+                            <div class="text-sm text-slate-500 mt-1">الجهات</div>
+                            <div class="mt-2 h-1 w-12 bg-amber-100 rounded-full mx-auto"></div>
+                        </div>
+                        <div class="p-5 rounded-xl stat-card card-hover text-center">
+                            <div class="text-3xl font-extrabold text-purple-600">{{ stats.done_week }}</div>
+                            <div class="text-sm text-slate-500 mt-1">منجز هذا الأسبوع</div>
+                            <div class="mt-2 h-1 w-12 bg-purple-100 rounded-full mx-auto"></div>
+                        </div>
+                    </div>
+                    <div class="mt-6 text-center">
+                        <div class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-full text-sm">
+                            <i class="fas fa-chart-line"></i>
+                            <span>في تزايد مستمر</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- عناصر زخرفية -->
+                <div class="absolute -top-4 -right-4 w-20 h-20 bg-emerald-200 rounded-full opacity-50 z-0"></div>
+                <div class="absolute -bottom-4 -left-4 w-16 h-16 bg-blue-200 rounded-full opacity-50 z-0"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- قسم كيف تعمل المنصة -->
+    <section id="how-it-works" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-slate-800">كيف تعمل منصة <span class="text-emerald-600">"تطوع من أجلي"</span></h2>
+                <p class="mt-3 text-slate-600 max-w-2xl mx-auto">عملية بسيطة ومباشرة تربط بين المحتاجين والمتطوعين في خطوات قليلة</p>
+                <div class="section-divider mt-6 w-24 mx-auto"></div>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center p-6 rounded-2xl bg-slate-50 card-hover">
+                    <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl mx-auto mb-4">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-3">التسجيل في المنصة</h3>
+                    <p class="text-slate-600">سجّل كمتطوع أو جهة أو مستفيد ببياناتك الأساسية لتبدأ رحلة العطاء</p>
+                </div>
+                
+                <div class="text-center p-6 rounded-2xl bg-slate-50 card-hover">
+                    <div class="w-16 h-16 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-2xl mx-auto mb-4">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-3">عرض الاحتياجات</h3>
+                    <p class="text-slate-600">يعرض المستفيدون احتياجاتهم ويقوم المتطوعون والجهات باختيار ما يناسبهم</p>
+                </div>
+                
+                <div class="text-center p-6 rounded-2xl bg-slate-50 card-hover">
+                    <div class="w-16 h-16 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-2xl mx-auto mb-4">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-3">التنفيذ والمتابعة</h3>
+                    <p class="text-slate-600">نراقب عملية التنفيذ ونتأكد من وصول المساعدة لمستحقيها بكفاءة وشفافية</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- قسم قصص النجاح -->
+    <section class="py-16 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-slate-800">قصص <span class="text-emerald-600">نجاح</span></h2>
+                <p class="mt-3 text-slate-600">تأثير إيجابي حقيقي في حياة الأسر المستفيدة</p>
+                <div class="section-divider mt-6 w-24 mx-auto"></div>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 card-hover">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-slate-800">أم محمد</div>
+                            <div class="text-sm text-slate-500">أم لثلاثة أطفال</div>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 italic">"لقد غيرت المنصة حياتنا، تمكن متطوعون من توفير مستلزمات الدراسة لأطفالي بعد معاناة طويلة. شكراً لكل من ساهم في إسعادنا."</p>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 card-hover">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-slate-800">أحمد السعدون</div>
+                            <div class="text-sm text-slate-500">متطوع منذ 6 أشهر</div>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 italic">"ساعدت 5 أسر عبر المنصة، والشعور بالرضا لا يقدر بثمن. المنصة سهّلت عملية الوصول للمحتاجين الحقيقيين."</p>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 card-hover">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-slate-800">جمعية البر الخيرية</div>
+                            <div class="text-sm text-slate-500">جهة متعاونة</div>
+                        </div>
+                    </div>
+                    <p class="text-slate-600 italic">"منصة 'تطوع من أجلي' ساعدتنا في تنظيم جهودنا التطوعية وتوجيهها للفئات الأكثر احتياجاً بشكل منظم وشفاف."</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- قسم الانضمام -->
+    <section id="join" class="py-16 bg-emerald-600 text-white">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <h2 class="text-3xl font-bold mb-4">انضم إلى مجتمع <span class="text-emerald-200">"تطوع من أجلي"</span></h2>
+            <p class="text-lg text-emerald-100 max-w-2xl mx-auto mb-8">سجّل الآن وكن جزءاً من رحلة العطاء والتأثير الإيجابي في مجتمعنا</p>
+            
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="{% url 'dashboard' %}" class="px-6 py-3 rounded-xl bg-white text-emerald-600 font-semibold hover:bg-slate-100 transition-colors flex items-center gap-2">
+                    <i class="fas fa-user-plus"></i>
+                    <span>سجّل كمتطوع</span>
+                </a>
+                <a href="{% url 'dashboard' %}" class="px-6 py-3 rounded-xl bg-emerald-700 text-white font-semibold hover:bg-emerald-800 transition-colors flex items-center gap-2">
+                    <i class="fas fa-building"></i>
+                    <span>سجّل كجهة</span>
+                </a>
+                <a href="{% url 'dashboard' %}" class="px-6 py-3 rounded-xl bg-transparent border border-white text-white font-semibold hover:bg-white/10 transition-colors flex items-center gap-2">
+                    <i class="fas fa-hands-helping"></i>
+                    <span>تقديم طلب مساعدة</span>
+                </a>
+            </div>
+            
+            <div class="mt-10 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                <div>
+                    <div class="text-2xl font-bold">{{ stats.beneficiaries }}+</div>
+                    <div class="text-emerald-200 text-sm">أسرة مستفيدة</div>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold">{{ stats.volunteers }}+</div>
+                    <div class="text-emerald-200 text-sm">متطوع نشط</div>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold">{{ stats.orgs }}+</div>
+                    <div class="text-emerald-200 text-sm">جهة متعاونة</div>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold">{{ stats.done_week }}+</div>
+                    <div class="text-emerald-200 text-sm">طلب مكتمل أسبوعياً</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- تذييل الصفحة -->
+    <footer class="bg-slate-800 text-slate-300 py-10">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 space-x-reverse mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-600 flex items-center justify-center">
+                            <span class="text-white font-bold text-lg">م</span>
+                        </div>
+                        <div class="font-extrabold text-xl text-white">تطوع من أجلي</div>
+                    </div>
+                    <p class="text-sm">منصة تطوعية تهدف لربط المحتاجين بالمتطوعين والجهات الخيرية بسرعة وأمان وشفافية.</p>
+                </div>
+                
+                <div>
+                    <h3 class="text-white font-bold mb-4">روابط سريعة</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-white transition-colors">عن المنصة</a></li>
+                        <li><a href="#how-it-works" class="hover:text-white transition-colors">كيف تعمل</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">الأسئلة الشائعة</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">اتصل بنا</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-white font-bold mb-4">الحسابات</h3>
+                    <ul class="space-y-2 text-sm">
+                        {% if request.user.is_authenticated %}
+                            <li><a href="{% url 'dashboard' %}" class="hover:text-white transition-colors">لوحة التحكم</a></li>
+                            <li><a href="{% url 'logout' %}" class="hover:text-white transition-colors">تسجيل الخروج</a></li>
+                        {% else %}
+                            <li><a href="{% url 'login' %}" class="hover:text-white transition-colors">تسجيل الدخول</a></li>
+                            <li><a href="#join" class="hover:text-white transition-colors">انضم إلينا</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-white font-bold mb-4">تابعنا</h3>
+                    <div class="flex gap-3">
+                        <a href="#" class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center hover:bg-emerald-600 transition-colors">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center hover:bg-emerald-600 transition-colors">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center hover:bg-emerald-600 transition-colors">
+                            <i class="fab fa-telegram"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-slate-700 mt-8 pt-6 text-center text-xs">
+                <p>هذا عرض أولي (MVP) للعرض التجريبي - © 2023 منصة "تطوع من أجلي". جميع الحقوق محفوظة.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // تهيئة ScrollReveal للرسوم المتحركة
+        ScrollReveal().reveal('.animate-fade-in-right', {
+            duration: 1000,
+            origin: 'right',
+            distance: '50px',
+            easing: 'ease-in-out'
+        });
+        
+        // إضافة تأثيرات تفاعلية للبطاقات
+        document.addEventListener('DOMContentLoaded', function() {
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+            
+            // تأثير العد التصاعدي للإحصائيات (يمكن تفعيله لاحقاً)
+            // animateCounters();
+        });
+        
+        // دالة للعد التصاعدي (للاستخدام المستقبلي)
+        function animateCounters() {
+            const counters = document.querySelectorAll('.counter');
+            const speed = 200;
+            
+            counters.forEach(counter => {
+                const target = +counter.getAttribute('data-target');
+                const count = +counter.innerText;
+                const increment = target / speed;
+                
+                if (count < target) {
+                    counter.innerText = Math.ceil(count + increment);
+                    setTimeout(() => animateCounters(), 1);
+                } else {
+                    counter.innerText = target;
+                }
+            });
+        }
+    </script>
+</body>
+</html>

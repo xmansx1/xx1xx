@@ -1,0 +1,24 @@
+<!DOCTYPE html><html lang="ar" dir="rtl"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>دخول – تطوع من أجلي</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head><body class="bg-slate-50">
+<div class="min-h-screen grid place-items-center">
+  <form method="post" class="bg-white border rounded-xl p-6 w-full max-w-sm">
+    {% csrf_token %}
+    <h1 class="font-extrabold mb-4 text-lg">تسجيل الدخول</h1>
+    <div class="space-y-3">
+      <div>
+        <label class="text-sm">اسم المستخدم</label>
+        <input type="text" name="username" class="mt-1 w-full rounded-lg border-slate-300">
+      </div>
+      <div>
+        <label class="text-sm">كلمة المرور</label>
+        <input type="password" name="password" class="mt-1 w-full rounded-lg border-slate-300">
+      </div>
+    </div>
+    {% if form.errors %}<p class="text-sm text-rose-600 mt-3">بيانات الدخول غير صحيحة</p>{% endif %}
+    <button class="mt-4 w-full px-4 py-2 rounded-lg bg-emerald-600 text-white">دخول</button>
+  </form>
+</div>
+</body></html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html><html lang="ar" dir="rtl"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>لوحتي – تطوع من أجلي</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>.badge{padding:.2rem .6rem;border-radius:9999px;font-size:.75rem;font-weight:700}</style>
+</head><body class="bg-slate-50">
+<header class="bg-white border-b">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="font-extrabold">لوحتي</div>
+    <nav class="flex gap-3">
+      <a href="{% url 'home' %}" class="px-3 py-2 rounded-lg bg-white border">الرئيسية</a>
+      <a href="{% url 'logout' %}" class="px-3 py-2 rounded-lg bg-white border">خروج</a>
+    </nav>
+  </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-4 py-6">
+  <div class="grid md:grid-cols-2 gap-6">
+    <section class="bg-white border rounded-xl p-4">
+      <h2 class="font-bold mb-3">مُسنَدة لي</h2>
+      {% if my_assigned %}
+        <div class="space-y-3">
+          {% for r in my_assigned %}
+          <a href="{% url 'request_detail' r.id %}" class="block border rounded-xl p-3 hover:bg-slate-50">
+            <div class="flex justify-between">
+              <div class="font-bold">{{ r }}</div>
+              <span class="badge" style="background:#eef">{{ r.get_status_display }}</span>
+            </div>
+            <div class="text-sm text-slate-600">{{ r.city }} • {{ r.date }} {{ r.time|time:"H:i" }}</div>
+          </a>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-sm text-slate-500">لا توجد طلبات مُسنَدة حاليًا.</p>
+      {% endif %}
+    </section>
+
+    <section class="bg-white border rounded-xl p-4">
+      <h2 class="font-bold mb-3">متاحة لي (بانتظار)</h2>
+      {% if available %}
+        <div class="space-y-3">
+          {% for r in available %}
+          <div class="border rounded-xl p-3">
+            <div class="flex justify-between">
+              <div class="font-bold">{{ r }}</div>
+              <span class="badge" style="background:#ffe">{{ r.get_status_display }}</span>
+            </div>
+            <div class="text-sm text-slate-600">{{ r.city }} • {{ r.date }} {{ r.time|time:"H:i" }}</div>
+            <div class="mt-2 text-sm text-slate-700">{{ r.desc|truncatechars:120 }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-sm text-slate-500">لا توجد طلبات متاحة الآن.</p>
+      {% endif %}
+    </section>
+  </div>
+</main>
+</body></html>

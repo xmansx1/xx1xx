@@ -1,0 +1,68 @@
+<!DOCTYPE html><html lang="ar" dir="rtl"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>تسجيل متطوع – من أجلي</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head><body class="bg-slate-50">
+<div class="min-h-screen grid place-items-center p-4">
+  <form method="post" class="bg-white border rounded-2xl p-6 w-full max-w-lg">
+    {% csrf_token %}
+    <h1 class="font-extrabold text-lg mb-4">تسجيل متطوع</h1>
+
+    {% if messages %}
+      <ul class="mb-3 text-sm">
+        {% for m in messages %}
+          <li class="px-3 py-2 rounded-lg {% if m.tags == 'success' %}bg-emerald-50 text-emerald-700{% else %}bg-rose-50 text-rose-700{% endif %}">{{ m }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <div class="grid md:grid-cols-2 gap-3">
+      <div>
+        <label class="text-sm">اسم المستخدم</label>
+        <input name="username" value="{{ form.username.value|default_if_none:'' }}" class="mt-1 w-full rounded-lg border-slate-300">
+        {% if form.username.errors %}<p class="text-sm text-rose-600">{{ form.username.errors.0 }}</p>{% endif %}
+      </div>
+      <div>
+        <label class="text-sm">المدينة</label>
+        {{ form.city|add_class:"mt-1 w-full rounded-lg border-slate-300" }}
+        {% if form.city.errors %}<p class="text-sm text-rose-600">{{ form.city.errors.0 }}</p>{% endif %}
+      </div>
+      <div>
+        <label class="text-sm">الاسم الكامل</label>
+        <input name="name" value="{{ form.name.value|default_if_none:'' }}" class="mt-1 w-full rounded-lg border-slate-300">
+        {% if form.name.errors %}<p class="text-sm text-rose-600">{{ form.name.errors.0 }}</p>{% endif %}
+      </div>
+      <div>
+        <label class="text-sm">المهارات</label>
+        <div class="mt-1 rounded-lg border p-2">
+          {{ form.skills }}
+        </div>
+        {% if form.skills.errors %}<p class="text-sm text-rose-600">{{ form.skills.errors.0 }}</p>{% endif %}
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-3 mt-3">
+      <div>
+        <label class="text-sm">كلمة المرور</label>
+        <input type="password" name="password1" class="mt-1 w-full rounded-lg border-slate-300">
+        {% if form.password1.errors %}{% for e in form.password1.errors %}<p class="text-sm text-rose-600">{{ e }}</p>{% endfor %}{% endif %}
+      </div>
+      <div>
+        <label class="text-sm">تأكيد كلمة المرور</label>
+        <input type="password" name="password2" class="mt-1 w-full rounded-lg border-slate-300">
+        {% if form.password2.errors %}<p class="text-sm text-rose-600">{{ form.password2.errors.0 }}</p>{% endif %}
+      </div>
+    </div>
+
+    {% if form.non_field_errors %}
+      {% for e in form.non_field_errors %}<p class="text-sm text-rose-600 mt-2">{{ e }}</p>{% endfor %}
+    {% endif %}
+
+    <button class="mt-4 w-full px-4 py-2 rounded-lg bg-emerald-600 text-white">إنشاء حساب متطوع</button>
+
+    <p class="text-sm text-slate-500 mt-3">
+      هل تمثّل جهة؟ <a href="{% url 'signup_org' %}" class="text-emerald-700 underline">سجّل هنا</a>
+    </p>
+  </form>
+</div>
+</body></html>
