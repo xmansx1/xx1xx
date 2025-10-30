@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>تم استلام طلبك – تطوع من أجلي</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50">
+  <main class="min-h-screen grid place-items-center p-4">
+    <div class="bg-white border rounded-2xl p-8 w-full max-w-lg text-center shadow-sm">
+      <div class="text-emerald-600 text-4xl mb-3">✓</div>
+      <h1 class="text-xl font-extrabold mb-2">تم استلام طلبك</h1>
+      <p class="text-slate-600">شكرًا لك. سيتم التواصل معك من قبل متطوع/جهة قريبة في أقرب وقت ممكن.</p>
+      <div class="mt-6 flex justify-center gap-2">
+        <a href="{% url 'home' %}" class="px-5 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700">العودة للرئيسية</a>
+        <a href="{% url 'request_new' %}" class="px-5 py-2 rounded-lg bg-white border border-slate-200 hover:bg-slate-50">إرسال طلب آخر</a>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

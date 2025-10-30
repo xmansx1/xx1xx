@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>تفاصيل الطلب – تطوع من أجلي</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50">
+  <header class="bg-white border-b">
+    <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="font-extrabold text-emerald-700">تفاصيل الطلب</div>
+      <nav class="flex gap-2">
+        <a href="{% url 'dashboard' %}" class="px-3 py-2 rounded-lg bg-white border hover:bg-slate-50">لوحتي</a>
+        <a href="{% url 'home' %}" class="px-3 py-2 rounded-lg bg-white border hover:bg-slate-50">الرئيسية</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 py-6">
+    {% if messages %}
+      <ul class="mb-4 text-sm">
+        {% for m in messages %}
+          <li class="px-3 py-2 rounded-lg {% if m.tags == 'success' %}bg-emerald-50 text-emerald-700{% else %}bg-rose-50 text-rose-700{% endif %}">{{ m }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <div class="bg-white border rounded-2xl p-6 shadow-sm">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <h1 class="font-extrabold text-lg">{{ obj.get_type_display }} — {{ obj.get_status_display }}</h1>
+          <div class="text-xs text-slate-500">{{ obj.city }} • {{ obj.date }} {{ obj.time }}</div>
+        </div>
+        <div class="grid gap-2">
+          {% if obj.status == 'accepted' %}
+            <form method="post" action="{% url 'request_start' obj.pk %}">{% csrf_token %}
+              <button class="px-3 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700">بدء التنفيذ</button>
+            </form>
+          {% elif obj.status == 'inprogress' %}
+            <form method="post" action="{% url 'request_complete' obj.pk %}">{% csrf_token %}
+              <button class="px-3 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700">إنهاء المهمة</button>
+            </form>
+          {% else %}
+            <span class="text-xs text-emerald-700">✓ {{ obj.get_status_display }}</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <h3 class="font-bold">الوصف</h3>
+        <p class="text-slate-700 mt-1 whitespace-pre-wrap">{{ obj.desc }}</p>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-4 mt-4">
+        <div>
+          <h3 class="font-bold">بيانات التواصل</h3>
+          <p class="text-sm text-slate-700 mt-1">{{ obj.name }} — {{ obj.phone }}</p>
+        </div>
+        <div>
+          <h3 class="font-bold">الإسناد الحالي</h3>
+          {% if obj.assigned_to %}
+            <p class="text-sm text-slate-700 mt-1">متطوع: {{ obj.assigned_to.name }}</p>
+          {% elif obj.assigned_org %}
+            <p class="text-sm text-slate-700 mt-1">جهة: {{ obj.assigned_org.name }}</p>
+          {% else %}
+            <p class="text-sm text-amber-700 mt-1">غير مسند</p>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if obj.lat and obj.lng %}
+        <div class="mt-6">
+          <h3 class="font-bold mb-2">الموقع (تقريبي)</h3>
+          <!-- خريطة مبسطة عبر iframe لـ OSM (بدون سكربتات إضافية) -->
+          <div class="rounded-xl overflow-hidden border">
+            <iframe
+              src="https://www.openstreetmap.org/export/embed.html?&marker={{ obj.lat }},{{ obj.lng }}&layer=mapnik"
+              style="width:100%;height:300px;border:0"></iframe>
+          </div>
+          <p class="text-xs text-slate-500 mt-1">الموقع تقريبي بناءً على المدينة فقط.</p>
+        </div>
+      {% endif %}
+    </div>
+  </main>
+</body>
+</html>
