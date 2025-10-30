@@ -1,61 +1,486 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>تسجيل جهة – من أجلي</title>
-<script src="https://cdn.tailwindcss.com"></script>
-</head><body class="bg-slate-50">
-<div class="min-h-screen grid place-items-center p-4">
-  <form method="post" class="bg-white border rounded-2xl p-6 w-full max-w-lg">
-    {% csrf_token %}
-    <h1 class="font-extrabold text-lg mb-4">تسجيل جهة</h1>
-
-    {% if messages %}
-      <ul class="mb-3 text-sm">
-        {% for m in messages %}
-          <li class="px-3 py-2 rounded-lg {% if m.tags == 'success' %}bg-emerald-50 text-emerald-700{% else %}bg-rose-50 text-rose-700{% endif %}">{{ m }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
-
-    <div class="grid md:grid-cols-2 gap-3">
-      <div>
-        <label class="text-sm">اسم المستخدم</label>
-        <input name="username" value="{{ form.username.value|default_if_none:'' }}" class="mt-1 w-full rounded-lg border-slate-300">
-        {% if form.username.errors %}<p class="text-sm text-rose-600">{{ form.username.errors.0 }}</p>{% endif %}
-      </div>
-      <div>
-        <label class="text-sm">المدينة</label>
-        {{ form.city|add_class:"mt-1 w-full rounded-lg border-slate-300" }}
-        {% if form.city.errors %}<p class="text-sm text-rose-600">{{ form.city.errors.0 }}</p>{% endif %}
-      </div>
-      <div class="md:col-span-2">
-        <label class="text-sm">اسم الجهة</label>
-        <input name="name" value="{{ form.name.value|default_if_none:'' }}" class="mt-1 w-full rounded-lg border-slate-300">
-        {% if form.name.errors %}<p class="text-sm text-rose-600">{{ form.name.errors.0 }}</p>{% endif %}
-      </div>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>تسجيل جهة – منصة "من أجلي"</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #059669;
+            --primary-dark: #047857;
+            --secondary: #0e7490;
+            --light: #f0fdf4;
+        }
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 50%, #d1fae5 100%);
+        }
+        
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+        
+        .input-field {
+            transition: all 0.3s ease;
+            border: 1px solid #d1d5db;
+        }
+        
+        .input-field:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .floating-element {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            z-index: -1;
+        }
+        
+        .success-message {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border: 1px solid #34d399;
+        }
+        
+        .error-message {
+            background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+            border: 1px solid #f87171;
+        }
+        
+        .form-step {
+            display: none;
+        }
+        
+        .form-step.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        
+        .step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 10px;
+            font-weight: bold;
+            color: #6b7280;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .step.completed {
+            background: #10b981;
+            color: white;
+        }
+        
+        .step-line {
+            flex: 1;
+            height: 2px;
+            background: #e5e7eb;
+            margin: 0 5px;
+            align-self: center;
+            max-width: 40px;
+        }
+        
+        .step-line.completed {
+            background: #10b981;
+        }
+    </style>
+</head>
+<body class="min-h-screen grid place-items-center p-4">
+    <!-- عناصر زخرفية عائمة -->
+    <div class="floating-element w-64 h-64 bg-emerald-300 -top-32 -left-32"></div>
+    <div class="floating-element w-48 h-48 bg-blue-300 -bottom-24 -right-24"></div>
+    
+    <div class="form-container rounded-2xl p-6 w-full max-w-lg relative z-10">
+        <!-- رأس الصفحة -->
+        <div class="flex items-center justify-center mb-6">
+            <div class="w-12 h-12 rounded-xl bg-emerald-600 flex items-center justify-center mr-3">
+                <span class="text-white font-bold text-xl">م</span>
+            </div>
+            <div>
+                <h1 class="font-extrabold text-2xl text-emerald-700">من أجلي</h1>
+                <p class="text-sm text-slate-500 text-center">منصة التطوع لخدمة الأسر المستفيدة</p>
+            </div>
+        </div>
+        
+        <h2 class="font-bold text-xl text-slate-800 mb-2 text-center">تسجيل جهة جديدة</h2>
+        <p class="text-slate-600 text-center mb-6">انضم إلى منصتنا وكن جزءاً من مجتمع العطاء</p>
+        
+        <!-- مؤشر الخطوات -->
+        <div class="step-indicator">
+            <div class="step active">1</div>
+            <div class="step-line"></div>
+            <div class="step">2</div>
+            <div class="step-line"></div>
+            <div class="step">3</div>
+        </div>
+        
+        <form method="post" id="registrationForm">
+            {% csrf_token %}
+            
+            <!-- رسائل التنبيه -->
+            {% if messages %}
+                <div class="mb-4 space-y-2">
+                    {% for m in messages %}
+                        <div class="px-4 py-3 rounded-lg {% if m.tags == 'success' %}success-message text-emerald-800{% else %}error-message text-rose-800{% endif %} flex items-center">
+                            <i class="fas {% if m.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %} mr-2"></i>
+                            <span>{{ m }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <!-- الخطوة 1: المعلومات الأساسية -->
+            <div class="form-step active" id="step1">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">اسم المستخدم</label>
+                    <div class="relative">
+                        <input name="username" value="{{ form.username.value|default_if_none:'' }}" 
+                               class="input-field w-full rounded-lg px-4 py-3 pr-10" 
+                               placeholder="اختر اسم مستخدم فريد">
+                        <i class="fas fa-user absolute right-3 top-3.5 text-slate-400"></i>
+                    </div>
+                    {% if form.username.errors %}
+                        <p class="text-sm text-rose-600 mt-1 flex items-center">
+                            <i class="fas fa-exclamation-circle mr-1"></i>
+                            {{ form.username.errors.0 }}
+                        </p>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">اسم الجهة</label>
+                    <div class="relative">
+                        <input name="name" value="{{ form.name.value|default_if_none:'' }}" 
+                               class="input-field w-full rounded-lg px-4 py-3 pr-10" 
+                               placeholder="الاسم الرسمي للجهة">
+                        <i class="fas fa-building absolute right-3 top-3.5 text-slate-400"></i>
+                    </div>
+                    {% if form.name.errors %}
+                        <p class="text-sm text-rose-600 mt-1 flex items-center">
+                            <i class="fas fa-exclamation-circle mr-1"></i>
+                            {{ form.name.errors.0 }}
+                        </p>
+                    {% endif %}
+                </div>
+                
+                <div class="flex justify-between mt-6">
+                    <div></div> <!-- عنصر فارغ للمحاذاة -->
+                    <button type="button" class="btn-next px-4 py-2 rounded-lg bg-emerald-600 text-white flex items-center">
+                        <span>التالي</span>
+                        <i class="fas fa-arrow-left mr-2"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- الخطوة 2: المعلومات الإضافية -->
+            <div class="form-step" id="step2">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">المدينة</label>
+                    <div class="relative">
+                        {{ form.city|add_class:"input-field w-full rounded-lg px-4 py-3 pr-10" }}
+                        <i class="fas fa-city absolute right-3 top-3.5 text-slate-400"></i>
+                    </div>
+                    {% if form.city.errors %}
+                        <p class="text-sm text-rose-600 mt-1 flex items-center">
+                            <i class="fas fa-exclamation-circle mr-1"></i>
+                            {{ form.city.errors.0 }}
+                        </p>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">نوع الجهة</label>
+                    <div class="relative">
+                        <select class="input-field w-full rounded-lg px-4 py-3 pr-10">
+                            <option value="">اختر نوع الجهة</option>
+                            <option value="charity">جمعية خيرية</option>
+                            <option value="company">شركة مسؤولة مجتمعياً</option>
+                            <option value="governmental">جهة حكومية</option>
+                            <option value="educational">مؤسسة تعليمية</option>
+                            <option value="other">أخرى</option>
+                        </select>
+                        <i class="fas fa-tag absolute right-3 top-3.5 text-slate-400"></i>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between mt-6">
+                    <button type="button" class="btn-prev px-4 py-2 rounded-lg bg-slate-200 text-slate-700 flex items-center">
+                        <i class="fas fa-arrow-right ml-2"></i>
+                        <span>السابق</span>
+                    </button>
+                    <button type="button" class="btn-next px-4 py-2 rounded-lg bg-emerald-600 text-white flex items-center">
+                        <span>التالي</span>
+                        <i class="fas fa-arrow-left mr-2"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- الخطوة 3: كلمة المرور -->
+            <div class="form-step" id="step3">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">كلمة المرور</label>
+                    <div class="relative">
+                        <input type="password" name="password1" 
+                               class="input-field w-full rounded-lg px-4 py-3 pr-10" 
+                               placeholder="كلمة مرور قوية وآمنة">
+                        <i class="fas fa-lock absolute right-3 top-3.5 text-slate-400"></i>
+                    </div>
+                    {% if form.password1.errors %}
+                        {% for e in form.password1.errors %}
+                            <p class="text-sm text-rose-600 mt-1 flex items-center">
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                {{ e }}
+                            </p>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <div class="mt-2 text-xs text-slate-500">
+                        <p class="flex items-center mb-1"><i class="fas fa-info-circle mr-1"></i> يجب أن تحتوي كلمة المرور على:</p>
+                        <ul class="mr-4 space-y-1">
+                            <li class="flex items-center"><i class="fas fa-check text-emerald-500 mr-1 text-xs"></i> 8 أحرف على الأقل</li>
+                            <li class="flex items-center"><i class="fas fa-check text-emerald-500 mr-1 text-xs"></i> حرف كبير واحد على الأقل</li>
+                            <li class="flex items-center"><i class="fas fa-check text-emerald-500 mr-1 text-xs"></i> رقم واحد على الأقل</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">تأكيد كلمة المرور</label>
+                    <div class="relative">
+                        <input type="password" name="password2" 
+                               class="input-field w-full rounded-lg px-4 py-3 pr-10" 
+                               placeholder="أعد إدخال كلمة المرور">
+                        <i class="fas fa-lock absolute right-3 top-3.5 text-slate-400"></i>
+                    </div>
+                    {% if form.password2.errors %}
+                        <p class="text-sm text-rose-600 mt-1 flex items-center">
+                            <i class="fas fa-exclamation-circle mr-1"></i>
+                            {{ form.password2.errors.0 }}
+                        </p>
+                    {% endif %}
+                </div>
+                
+                <div class="flex items-start mb-4">
+                    <input type="checkbox" id="agreeTerms" class="mt-1 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                    <label for="agreeTerms" class="mr-2 text-sm text-slate-600">
+                        أوافق على <a href="#" class="text-emerald-700 underline">شروط الاستخدام</a> و <a href="#" class="text-emerald-700 underline">سياسة الخصوصية</a>
+                    </label>
+                </div>
+                
+                <div class="flex justify-between mt-6">
+                    <button type="button" class="btn-prev px-4 py-2 rounded-lg bg-slate-200 text-slate-700 flex items-center">
+                        <i class="fas fa-arrow-right ml-2"></i>
+                        <span>السابق</span>
+                    </button>
+                    <button type="submit" class="px-4 py-2 rounded-lg bg-emerald-600 text-white flex items-center pulse-animation">
+                        <i class="fas fa-user-plus ml-2"></i>
+                        <span>إنشاء حساب الجهة</span>
+                    </button>
+                </div>
+            </div>
+            
+            {% if form.non_field_errors %}
+                <div class="mt-4">
+                    {% for e in form.non_field_errors %}
+                        <p class="text-sm text-rose-600 flex items-center">
+                            <i class="fas fa-exclamation-circle mr-2"></i>
+                            {{ e }}
+                        </p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </form>
+        
+        <div class="text-center mt-6 pt-4 border-t border-slate-200">
+            <p class="text-sm text-slate-600">
+                هل أنت متطوع فرد؟ 
+                <a href="{% url 'signup_volunteer' %}" class="text-emerald-700 font-medium underline hover:text-emerald-800">
+                    سجّل حساب متطوع هنا
+                </a>
+            </p>
+            <p class="text-sm text-slate-500 mt-2">
+                لديك حساب بالفعل؟ 
+                <a href="{% url 'login' %}" class="text-emerald-700 font-medium underline hover:text-emerald-800">
+                    تسجيل الدخول
+                </a>
+            </p>
+        </div>
     </div>
 
-    <div class="grid md:grid-cols-2 gap-3 mt-3">
-      <div>
-        <label class="text-sm">كلمة المرور</label>
-        <input type="password" name="password1" class="mt-1 w-full rounded-lg border-slate-300">
-        {% if form.password1.errors %}{% for e in form.password1.errors %}<p class="text-sm text-rose-600">{{ e }}</p>{% endfor %}{% endif %}
-      </div>
-      <div>
-        <label class="text-sm">تأكيد كلمة المرور</label>
-        <input type="password" name="password2" class="mt-1 w-full rounded-lg border-slate-300">
-        {% if form.password2.errors %}<p class="text-sm text-rose-600">{{ form.password2.errors.0 }}</p>{% endif %}
-      </div>
-    </div>
-
-    {% if form.non_field_errors %}
-      {% for e in form.non_field_errors %}<p class="text-sm text-rose-600 mt-2">{{ e }}</p>{% endfor %}
-    {% endif %}
-
-    <button class="mt-4 w-full px-4 py-2 rounded-lg bg-emerald-600 text-white">إنشاء حساب جهة</button>
-
-    <p class="text-sm text-slate-500 mt-3">
-      هل أنت متطوع فرد؟ <a href="{% url 'signup_volunteer' %}" class="text-emerald-700 underline">سجّل هنا</a>
-    </p>
-  </form>
-</div>
-</body></html>
+    <script>
+        // إدارة خطوات النموذج
+        document.addEventListener('DOMContentLoaded', function() {
+            const steps = document.querySelectorAll('.form-step');
+            const stepIndicators = document.querySelectorAll('.step');
+            const stepLines = document.querySelectorAll('.step-line');
+            let currentStep = 0;
+            
+            // زر التالي
+            document.querySelectorAll('.btn-next').forEach(button => {
+                button.addEventListener('click', function() {
+                    if (validateStep(currentStep)) {
+                        goToStep(currentStep + 1);
+                    }
+                });
+            });
+            
+            // زر السابق
+            document.querySelectorAll('.btn-prev').forEach(button => {
+                button.addEventListener('click', function() {
+                    goToStep(currentStep - 1);
+                });
+            });
+            
+            function goToStep(step) {
+                // إخفاء الخطوة الحالية
+                steps[currentStep].classList.remove('active');
+                stepIndicators[currentStep].classList.remove('active');
+                
+                // إظهار الخطوة الجديدة
+                steps[step].classList.add('active');
+                stepIndicators[step].classList.add('active');
+                
+                // تحديث الخطوط بين المؤشرات
+                if (step > currentStep) {
+                    for (let i = currentStep; i < step; i++) {
+                        if (stepLines[i]) {
+                            stepLines[i].classList.add('completed');
+                        }
+                    }
+                } else {
+                    for (let i = step; i < currentStep; i++) {
+                        if (stepLines[i]) {
+                            stepLines[i].classList.remove('completed');
+                        }
+                    }
+                }
+                
+                // تحديث الخطوة الحالية
+                currentStep = step;
+            }
+            
+            function validateStep(step) {
+                let isValid = true;
+                
+                if (step === 0) {
+                    // التحقق من الخطوة 1
+                    const username = document.querySelector('input[name="username"]');
+                    const name = document.querySelector('input[name="name"]');
+                    
+                    if (!username.value.trim()) {
+                        showError(username, 'يرجى إدخال اسم المستخدم');
+                        isValid = false;
+                    } else {
+                        clearError(username);
+                    }
+                    
+                    if (!name.value.trim()) {
+                        showError(name, 'يرجى إدخال اسم الجهة');
+                        isValid = false;
+                    } else {
+                        clearError(name);
+                    }
+                } else if (step === 1) {
+                    // التحقق من الخطوة 2
+                    const city = document.querySelector('select[name="city"]');
+                    
+                    if (!city.value) {
+                        showError(city, 'يرجى اختيار المدينة');
+                        isValid = false;
+                    } else {
+                        clearError(city);
+                    }
+                }
+                
+                return isValid;
+            }
+            
+            function showError(input, message) {
+                const parent = input.parentElement;
+                let errorElement = parent.nextElementSibling;
+                
+                if (!errorElement || !errorElement.classList.contains('error-message')) {
+                    errorElement = document.createElement('p');
+                    errorElement.className = 'text-sm text-rose-600 mt-1 flex items-center';
+                    errorElement.innerHTML = `<i class="fas fa-exclamation-circle mr-1"></i> ${message}`;
+                    parent.parentElement.insertBefore(errorElement, parent.nextElementSibling);
+                } else {
+                    errorElement.innerHTML = `<i class="fas fa-exclamation-circle mr-1"></i> ${message}`;
+                }
+                
+                input.classList.add('border-rose-500');
+            }
+            
+            function clearError(input) {
+                const parent = input.parentElement;
+                let errorElement = parent.nextElementSibling;
+                
+                if (errorElement && errorElement.classList.contains('text-rose-600')) {
+                    errorElement.remove();
+                }
+                
+                input.classList.remove('border-rose-500');
+            }
+            
+            // تأثيرات عند التركيز على الحقول
+            document.querySelectorAll('.input-field').forEach(field => {
+                field.addEventListener('focus', function() {
+                    this.parentElement.classList.add('ring-2', 'ring-emerald-200');
+                });
+                
+                field.addEventListener('blur', function() {
+                    this.parentElement.classList.remove('ring-2', 'ring-emerald-200');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
